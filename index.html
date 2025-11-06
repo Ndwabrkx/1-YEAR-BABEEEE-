@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Love Adventure 💖</title>
+<style>
+/* 🌸 Love-Themed Styling 🌸 */
+body {
+    font-family: 'Comic Sans MS', cursive;
+    background: linear-gradient(135deg, #ffe0f0, #ffc4d6);
+    color: #d1006e;
+    text-align: center;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#game-container {
+    margin: 30px auto;
+    padding: 20px;
+    max-width: 600px;
+    background-color: #fff0f6;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 100, 150, 0.3);
+    position: relative;
+}
+
+h2 {
+    font-size: 1.7em;
+    color: #ff4f8b;
+}
+
+.stage {
+    display: none;
+    margin-top: 30px;
+}
+
+.stage.active {
+    display: block;
+}
+
+#popup {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 80, 120, 0.9);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    font-size: 1.3em;
+    display: none;
+    z-index: 999;
+}
+
+#hearts-container, #foods-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.heart, .food-item {
+    font-size: 2em;
+    position: absolute;
+    top: 0;
+    animation: fall 5s linear forwards;
+    cursor: pointer;
+}
+
+@keyframes fall {
+    from { top: -10%; }
+    to { top: 100%; opacity: 0; }
+}
+
+#love-message {
+    display: inline-block;
+    font-size: 2em;
+    color: #ff4f8b;
+    padding: 20px;
+    background: #ffe3ec;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+#love-message:hover {
+    transform: scale(1.1);
+}
+
+.hidden {
+    display: none;
+}
+
+#game-over {
+    font-size: 1.2em;
+}
+
+#love-note {
+    font-style: italic;
+    color: #ff4f8b;
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+#music-btn {
+    background: #ff80aa;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-size: 1em;
+    transition: background 0.3s;
+}
+#music-btn:hover {
+    background: #ff5c93;
+}
+</style>
+</head>
+<body>
+<div id="game-container">
+    <button id="music-btn">🎵 Play Love Music</button>
+
+    <audio id="bg-music" loop>
+        <!-- You can replace this link with any romantic instrumental MP3 -->
+        <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_2c1f1ff38c.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="popup" class="popup">
+        <p id="popup-text"></p>
+    </div>
+
+    <div id="stage1" class="stage">
+        <h2>Stage 1: Collect the Falling Hearts 💖</h2>
+        <div id="hearts-container"></div>
+    </div>
+
+    <div id="stage2" class="stage">
+        <h2>Stage 2: Collect the Love Foods 🍫🍓🍰</h2>
+        <div id="foods-container"></div>
+    </div>
+
+    <div id="stage3" class="stage">
+        <h2>Stage 3: Click the “I Love You” Message ❤️</h2>
+        <div id="love-message-container">
+            <span id="love-message">I Love You ❤️</span>
+        </div>
+    </div>
+
+    <div id="game-over" class="hidden">
+        <h2>Congratulations, My Love! 💕</h2>
+        <p>Here's a special message just for you:</p>
+        <p id="love-note"></p>
+    </div>
+</div>
+
+<script>
+// 🎵 Music Control
+const music = document.getElementById('bg-music');
+const musicBtn = document.getElementById('music-btn');
+let musicPlaying = false;
+
+musicBtn.addEventListener('click', () => {
+    if (!musicPlaying) {
+        music.play().then(() => {
+            musicPlaying = true;
+            musicBtn.textContent = "💖 Music Playing...";
+            musicBtn.disabled = true;
+        }).catch(err => console.log("Autoplay blocked:", err));
+    }
+});
+
+// 🌹 Helper: Show popup instructions
+function showPopup(text) {
+    const popup = document.getElementById('popup');
+    const popupText = document.getElementById('popup-text');
+    popupText.textContent = text;
+    popup.style.display = 'block';
+    setTimeout(() => popup.style.display = 'none', 3000);
+}
+
+// 💖 Stage 1: Collect Hearts
+let heartCount = 0;
+let heartsFallingInterval;
+
+function startStage1() {
+    document.getElementById('stage1').classList.add('active');
+    showPopup("Stage 1: Catch 10 falling hearts! 💕 Click them before they fall away!");
+    
+    heartsFallingInterval = setInterval(() => {
+        const heart = document.createElement('span');
+        heart.classList.add('heart');
+        heart.textContent = '💖';
+        heart.style.left = Math.random() * 90 + '%';
+        heart.style.top = '-10%';
+        document.getElementById('hearts-container').appendChild(heart);
+        
+        heart.addEventListener('click', () => {
+            heartCount++;
+            heart.remove();
+            if (heartCount === 10) {
+                clearInterval(heartsFallingInterval);
+                document.getElementById('stage1').classList.remove('active');
+                startStage2();
+            }
+        });
+        setTimeout(() => heart.remove(), 5000);
+    }, 800);
+}
+
+// 🍰 Stage 2: Collect Food
+let foodCount = 0;
+let foodFallingInterval;
+
+function startStage2() {
+    document.getElementById('stage2').classList.add('active');
+    showPopup("Stage 2: Collect 10 yummy love foods! 🍫🍓🍰");
+    
+    foodFallingInterval = setInterval(() => {
+        const food = document.createElement('span');
+        food.classList.add('food-item');
+        const foods = ['🍫', '🍓', '🍰', '🍩', '🍪'];
+        food.textContent = foods[Math.floor(Math.random() * foods.length)];
+        food.style.left = Math.random() * 90 + '%';
+        food.style.top = '-10%';
+        document.getElementById('foods-container').appendChild(food);
+
+        food.addEventListener('click', () => {
+            foodCount++;
+            food.remove();
+            if (foodCount === 10) {
+                clearInterval(foodFallingInterval);
+                document.getElementById('stage2').classList.remove('active');
+                startStage3();
+            }
+        });
+        setTimeout(() => food.remove(), 5000);
+    }, 800);
+}
+
+// 💌 Stage 3: Click "I Love You"
+let loveClickCount = 0;
+function startStage3() {
+    document.getElementById('stage3').classList.add('active');
+    showPopup("Stage 3: Click the “I Love You” message 10 times ❤️");
+    
+    const loveMessage = document.getElementById('love-message');
+    loveMessage.addEventListener('click', () => {
+        loveClickCount++;
+        loveMessage.textContent = `I Love You ❤️ (${loveClickCount}/10)`;
+        if (loveClickCount === 10) {
+            document.getElementById('stage3').classList.remove('active');
+            showFinalMessage();
+        }
+    });
+}
+
+// 💕 Final Love Message
+function showFinalMessage() {
+    const note = `
+        My Dearest Little Devil 💖  
+        Today marks one beautiful year of us together!  
+        Every moment with you has been filled with laughter, warmth, and love, backshots, you giving me no patta and no loochi(fielding set hai teri ladli).  
+        You are my favorite person, my comfort, and my happiness, The start of my dawn and the end of my dusk, My passionate loving mean girlie pop and my dearest.  
+        Here’s to many more anniversaries and endless love. 💞  
+        I love you forever and always, My precious Adrija❤️
+                                                       - your babaiwood
+    `;
+    document.getElementById('game-over').classList.remove('hidden');
+    document.getElementById('love-note').innerHTML = note.replace(/\n/g, '<br>');
+}
+
+// 🌸 Start Game
+startStage1();
+</script>
+</body>
+</html>
